@@ -1,40 +1,59 @@
-// Method:1  -  Using the Object Data Type
-
-let hash = {}
-
-hash["Hello"] = "John"
-hash["Hello1"] = "John1"
-hash["Hello2"] = "John2"
-console.log({ hash })
-
-for (var key in hash) {
-  // use hasOwnProperty() to filter out properties from Object.prototype
-  if (hash.hasOwnProperty(key)) {
-    console.log("key is: " + key + ", value is: " + hash[key])
+class HashTable {
+  constructor(size = 53) {
+    this.table = new Array(size)
+    this.size = size
   }
-}
 
-// Method:2  -  Using the Map
+  // Hash function to generate array index
+  _hash(key) {
+    let hash = 0
+    for (let i = 0; i < key.length; i++) {
+      hash = (hash + key.charCodeAt(i) * 23) % this.size
+    }
+    return hash
+  }
 
-var maphash = new Map()
+  // Insert a key-value pair
+  set(key, value) {
+    const index = this._hash(key)
 
-maphash.set("key1", "value1")
-maphash.set("key2", "value2")
-maphash.set("key3", "value3")
+    // Initialize a linked list (array) at the index if it's empty
+    if (!this.table[index]) {
+      this.table[index] = []
+    }
 
-console.log(maphash.get("key3"))
+    // Store the key-value pair as an array
+    this.table[index].push([key, value])
+  }
 
-maphash.set("key1", "new value")
+  // Retrieve a value by key
+  get(key) {
+    const index = this._hash(key)
+    const currentBucket = this.table[index]
 
-console.log(maphash.get("key1"))
+    if (currentBucket) {
+      for (let i = 0; i < currentBucket.length; i++) {
+        if (currentBucket[i][0] === key) {
+          return currentBucket[i][1]
+        }
+      }
+    }
+    return undefined
+  }
 
-console.log(maphash.size)
+  // Remove a key-value pair
+  remove(key) {
+    const index = this._hash(key)
+    const currentBucket = this.table[index]
 
-maphash.delete("key2")
-
-console.log(maphash.size)
-// Output: 2
-
-for (const [key, value] of maphash) {
-  console.log(key + " = " + value)
+    if (currentBucket) {
+      for (let i = 0; i < currentBucket.length; i++) {
+        if (currentBucket[i][0] === key) {
+          currentBucket.splice(i, 1)
+          return true
+        }
+      }
+    }
+    return false
+  }
 }
